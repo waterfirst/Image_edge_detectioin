@@ -1,0 +1,24 @@
+install.packages("BiocManager")
+BiocManager::install("EBImage")
+library(EBImage)
+
+# get image
+img <- readImage("https://www.r-project.org/logo/Rlogo.png")
+print(img, short = T)
+
+# define horizontal and vertical Sobel kernel
+Shoriz <- matrix(c(1, 2, 1, 0, 0, 0, -1, -2, -1), nrow = 3)
+Svert <- t(Shoriz)
+
+# get horizontal and vertical edges
+imgH <- filter2(img, Shoriz)
+imgV <- filter2(img, Svert)
+
+# combine edge pixel data to get overall edge data
+hdata <- imageData(imgH)
+vdata <- imageData(imgV)
+edata <- sqrt(hdata^2 + vdata^2)
+
+# transform edge data to image
+imgE <- Image(edata, colormode = 2)
+print(display(combine(img, imgH, imgV, imgE), method = "raster", all = T))
